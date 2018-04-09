@@ -20,8 +20,11 @@ class QLearn:
         if X == None and Y == None:
             X = self.X
             Y = self.Y
+        
         X1 = np.matrix (X).transpose()
         Y1 = np.matrix (Y).transpose()
+        
+        """
         decomp = np.linalg.svd (X1)
         U = np.matrix(decomp[0])
         VT = np.matrix(decomp [2])
@@ -45,6 +48,8 @@ class QLearn:
         print len(UT.getA())
         print len(UT.getA()[0])
         inv = V * sigmainv * UT
+        """
+        
         inv = np.linalg.pinv(X1)
         
         self.Z = Y1 *inv
