@@ -21,39 +21,83 @@ class QLearn:
             X = self.X
             Y = self.Y
         
-        X1 = np.matrix (X).transpose()
-        Y1 = np.matrix (Y).transpose()
+        X1 = np.matrix (X).transpose().tolist()
+        Y1 = np.matrix (Y).transpose().tolist()
         
-        """
+        
         decomp = np.linalg.svd (X1)
-        U = np.matrix(decomp[0])
-        VT = np.matrix(decomp [2])
-        V = VT.transpose()
-        UT = U.transpose()
-
-
-
-
-        sigma = [[0]*len(VT.getA())]*len(U.getA()[0])
-        #sigma = [[0]*len(U.getA())]*len(VT.getA()[0])
-        for i in range (len(decomp[1])):
-            sigma [i][i] = decomp [1][i]
-
-        sigmainv = np.matrix(np.linalg.pinv(sigma))
-     
-        print len(V.getA())
-        print len(V.getA()[0])
-        print len(sigmainv.getA())
-        print len(sigmainv.getA()[0])
-        print len(UT.getA())
-        print len(UT.getA()[0])
-        inv = V * sigmainv * UT
-        """
+        U = decomp[0]
+        singularValues = decomp [1]
+        VT = decomp [2]
         
-        inv = np.linalg.pinv(X1)
+        # Do dimension reduction
+        self.truncated = self.dimension_reduction (U, singularValues, VT)
         
-        self.Z = Y1 *inv
+        # Computer the inverse
+        SVD_inverse = self.find_inverse (self.truncated[0], self.truncated[1], self.truncated[2])
+        inv = np.matmul(np.matmul(SVD_inverse[0], SVD_inverse[1]), SVD_inverse[2])
+        
+        # Reliable and computationally quick
+        #inv = np.linalg.pinv(X1)
+        
+        self.Z = np.matmul(Y1, inv)
         self.trained = True
+            
+            
+    def createSingularValuesMatrix (self, U, sigma, VT):
+        numCols = len(VT)   # number of columns is equal to the number of rows of VT
+        numRows = len(U[0])       # number of rows is equal to the number of columns of U
+
+        arr = [[0 for col in range (numCols)] for row in range (numRows)]
+    
+        smaller = numCols
+        if numRows < smaller:
+            smaller = numRows
+        for i in range (smaller):
+            arr[i][i] = sigma[i]
+        return arr
+
+    def find_inverse (self, U, sigma, VT):
+        # Finding the pseudoinverse using the singular value decomposition
+        # The pseudoinverse using an SVD is equal to
+        # V * sigma^-1 * UT
+        V = np.matrix(VT).transpose().getA()
+        UT = np.matrix(U).transpose().getA()
+        numCols = len (UT)      # number of columns is equal to the number of rows of UT
+        numRows = len (V[0])       # number of rows is equal to the number of columns of V
+    
+        arr = [[0 for col in range (numCols)] for row in range (numRows)]
+    
+        smaller = numCols
+        if numRows < smaller:
+            smaller = numRows
+        for i in range (smaller):
+            if (sigma[i] != 0): # Avoid Divide by zero
+                arr[i][i] = 1/sigma[i]
+            #arr [i][i] = 1/sigma[i]
+        # returns V, sigma^-1, UT
+        return (V, arr, UT)
+
+    # Try dimensionality reduction
+    def dimension_reduction (self, U, sigma, VT):
+        ktruncate = 0
+        while (ktruncate < len (sigma) and sigma[ktruncate] > 0.01):
+            ktruncate+= 1
+        
+        # U will become an (m by r) size matrix (m rows and r columns)
+        # sigma will become an (r by r) size matrix (r rows and r columns)
+        # VT will become a (r by n) size matrix (r rows and n columns)
+
+        Utruncated = [[U[row][col] for col in range (ktruncate)] for row in range (len(U))]
+
+        VTtruncated = [[VT[row][col] for col in range (len (VT[row]))] for row in range (ktruncate)]
+
+        '''
+        arr = [[0 for col in range (ktruncate)] for row in range (ktruncate)]
+        for i in range (len(ktruncate)):
+        arr[i][i] = sigma[i]
+        '''
+        return (Utruncated, sigma, VTtruncated)
 
     def predict (self, input):
         if (self.trained):
@@ -77,17 +121,40 @@ class QLearn:
         total_error /= len (output)
         print ("Average Error: " + str (total_error))
 
+    def print_concepts (self, number_of_concepts=1):
+        rank = len (self.truncated[2]) # The rank is equal to the number of rows in V transpose
+        print ("Rank = " + str(rank))
+        
+        num = number_of_concepts
+        if (rank < num):
+            num = rank
+        
+        for i in range (num):
+            Ucol = np.matrix([row[i] for row in self.truncated[0]]).transpose()
+            sigma = self.truncated [1][i]
+            VTrow = self.truncated [2][i]
+            concept = np.matrix(Ucol) * np.matrix (VTrow)
+            concept = np.array(concept) * sigma
+            
+            print ("Concept " + str (i) + ") with sigma = " + str (sigma))
+            print (concept.tolist())
+            print ("")
+            print ("")
+
     def l2_error (self, real, prediction):
         error = 0
         for i in range (len (real)):
             error += (real[i] - prediction[i]) ** 2
         return error
 
-
+    """
+            Deprecated
+    """
+    """
     def add_data_point (self, x, y):
         self.X.append (x)
         self.Y.append (y)
-
+    """
     def set_training_data (self, input, output):
         self.X = input
         self.Y = output

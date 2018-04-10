@@ -4,7 +4,7 @@ from GroupQuery import GroupQuery
 from CyclicalQuery import CyclicalQuery
 from QLearn import QLearn
 
-class QTester:
+class QTester2:
     def __init__ (self):
         self.queries = [None] * 7
     
@@ -75,10 +75,14 @@ class QTester:
         self.predictor.train()
 
 
+    def print_concepts (self):
+        self.predictor.print_concepts()
+
 
 
 
 if __name__== "__main__":
-    test = QTester ()
+    test = QTester2 ()
     test.train_data()
     test.test_predictor()
+    test.print_concepts()
