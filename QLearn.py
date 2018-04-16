@@ -6,7 +6,20 @@ import numpy as np
 #https://archive.ics.uci.edu/ml/machine-learning-databases/00396/
 #https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly
 #https://www.youtube.com/watch?v=eHqhJylvIs4&app=desktop
-#vampath
+
+# PhD. Vaibhav
+# Victor
+
+# TODO: Regularization to prevent overfitting
+# Synthesis of another dataset?
+# Make sure that the math absolutely checks out?
+# Understand the meaning of "concepts" in SVD
+# Provide better print statements for a better understanding of data
+
+
+# Do a write up with references to the code
+# Remove bias from the dataset; in particular, omit if 2 standard deviations below the mean
+# Get a quantifiable answer to Bias
 
 class QLearn:
 
@@ -37,7 +50,7 @@ class QLearn:
         SVD_inverse = self.find_inverse (self.truncated[0], self.truncated[1], self.truncated[2])
         inv = np.matmul(np.matmul(SVD_inverse[0], SVD_inverse[1]), SVD_inverse[2])
         
-        # Reliable and computationally quick
+        # Reliable and computationally faster than
         #inv = np.linalg.pinv(X1)
         
         self.Z = np.matmul(Y1, inv)
@@ -81,7 +94,7 @@ class QLearn:
     # Try dimensionality reduction
     def dimension_reduction (self, U, sigma, VT):
         ktruncate = 0
-        while (ktruncate < len (sigma) and sigma[ktruncate] > 0.01):
+        while (ktruncate < len (sigma) and sigma[ktruncate] > 0.001):
             ktruncate+= 1
         
         # U will become an (m by r) size matrix (m rows and r columns)
@@ -107,8 +120,11 @@ class QLearn:
 
     def test_model (self, input, output, verbose=True):
         total_error = 0
+        predictions = []
+        
         for i in range (len (output)):
             prediction = self.predict (input[i]).tolist()
+            predictions.append (prediction)
             err = self.l2_error (output[i], prediction)
             if verbose:
                 print (str (i+1)+ ") ")
@@ -119,7 +135,11 @@ class QLearn:
                 print ("")
             total_error += err
         total_error /= len (output)
-        print ("Average Error: " + str (total_error))
+        print ("Average Error L2: " + str (total_error))
+        
+        coeffs = self.coeff_of_determination (output, predictions)
+        print ("Coefficients of determination: " + str (coeffs))
+        
 
     def print_concepts (self, number_of_concepts=1):
         rank = len (self.truncated[2]) # The rank is equal to the number of rows in V transpose
@@ -146,6 +166,43 @@ class QLearn:
         for i in range (len (real)):
             error += (real[i] - prediction[i]) ** 2
         return error
+    
+    def mean (self, list):
+        return sum (list) / len (list)
+    
+    def variance (self, list):
+        mean = self.mean (list)
+        variance = 0
+        for value in list:
+            variance += (value - mean) ** 2
+        return variance / len(list)
+  
+  
+  
+    def coeff_of_determination (self, real, prediction):
+
+        #sums_of_columns_real = [ sum(x) for x in zip(*real) ]
+        #sums_of_columns_prediction = [ sum(x) for x in zip(*prediction) ]
+        print (prediction)
+        
+        r_squared = []
+        for i in range (0, len (real)):
+            col_real = [row[i] for row in real]
+            col_prediction = [row[i] for row in prediction]
+
+            mean = self.mean(col_real)
+            ss_total = self.variance (col_real) * len (col_real)
+            
+            ss_reg = 0
+            for pred in col_prediction:
+                ss_reg += (pred - mean) ** 2
+
+            if (ss_total == 0):
+                r_squared.append (-1)
+            else:
+                r_squared.append (ss_reg/ss_total)
+        return r_squared
+
 
     """
             Deprecated
@@ -155,6 +212,8 @@ class QLearn:
         self.X.append (x)
         self.Y.append (y)
     """
+
+
     def set_training_data (self, input, output):
         self.X = input
         self.Y = output

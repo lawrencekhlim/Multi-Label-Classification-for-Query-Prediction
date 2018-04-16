@@ -9,6 +9,7 @@ class QOnlineRetail:
         self.testing = (0.8, 1)
         
         
+        
         with open ('timeseriesOnlineRetail.csv', 'r') as f:
             reader = csv.reader(f, delimiter=',')
             title_row = True
@@ -22,6 +23,60 @@ class QOnlineRetail:
         #print (self.data)
         self.predictor = QLearn()
     
+    
+    def clean_data (self):
+        self.data_used = []
+        self.new_data = []
+        self.cleaned = True
+        
+        uncleaned_training_data = self.data[int (360*self.training[0]):int(360*self.training[1])]
+        #print (len (uncleaned_training_data))
+        
+        
+        sums_of_columns = [ sum(x) for x in zip(*uncleaned_training_data) ]
+        #print (sums_of_columns)
+        
+        
+        mean = sum (sums_of_columns) / len (sums_of_columns)
+        #print ("Mean = " + str(mean))
+        
+        
+        variance = 0
+        for i in range (0, len (sums_of_columns)):
+            variance += (sums_of_columns[i]-mean) ** 2
+        variance = variance / len (sums_of_columns)
+        #print ("Variance = " + str(variance))
+        
+        
+        std_dev = variance ** 0.5
+        #print ("Standard Deviation = " + str(std_dev))
+    
+    
+        mean_of_nonzero_columns = 0
+        num_of_nonzero_columns = 0
+        for i in range (0, len (sums_of_columns)):
+            if sums_of_columns[i] > 0:
+                mean_of_nonzero_columns += sums_of_columns[i]
+                num_of_nonzero_columns += 1
+        mean_of_nonzero_columns = mean_of_nonzero_columns / num_of_nonzero_columns
+        #print ("Mean of non-zero columns = " + str(mean_of_nonzero_columns))
+        
+        variance_of_nonzero_columns = 0
+        for i in range (0, len (sums_of_columns)):
+            if sums_of_columns[i] > 0:
+                variance_of_nonzero_columns += (sums_of_columns[i]-mean_of_nonzero_columns) ** 2
+        variance_of_nonzero_columns = variance_of_nonzero_columns / num_of_nonzero_columns
+        #print ("Variance of non-zero columns = " + str(variance_of_nonzero_columns))
+
+
+        std_dev_of_nonzero_columns = variance_of_nonzero_columns ** 0.5
+        #print ("Standard Deviation of non-zero columns = " + str(std_dev_of_nonzero_columns))
+        
+        # Remove data one standard deviation below the non-zero mean
+        
+        
+        
+        
     
     def validate_predictor (self):
         input = []
@@ -71,6 +126,8 @@ class QOnlineRetail:
 
 if __name__== "__main__":
     test = QOnlineRetail ()
+    #test.clean_data()
+
     test.train_data()
     test.validate_predictor()
-    test.print_concepts()
+    #test.print_concepts()
