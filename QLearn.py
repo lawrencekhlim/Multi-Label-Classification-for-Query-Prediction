@@ -126,16 +126,22 @@ class QLearn:
             prediction = self.predict (input[i]).tolist()
             predictions.append (prediction)
             err = self.l2_error (output[i], prediction)
+            total_error += err
             if verbose:
                 print (str (i+1)+ ") ")
-                print ("Actual:    " + str(output[i]))
-                print ("Predicted: "+ str(prediction))
+                print ("\tActual\t\tPredicted")
+                for prod in range (0, len (output[i])):
+                    print ("\t"+str(output [i][prod])+"\t\t"+str(prediction[prod]))
+                #print ("Actual:    " + str(output[i]))
+                #print ("Predicted: "+ str(prediction))
                 print ("L2 Error:  " + str (err))
-                #print ("Std Dev:   " + str (err ** (0.5)))
+                print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
                 print ("")
-            total_error += err
-        total_error /= len (output)
+        total_error = total_error / len (output)
         print ("Average Error L2: " + str (total_error))
+        
+        rmsd = (total_error / len (output[0]))**0.5
+        print ("RMSD: " + str(rmsd))
         
         coeffs = self.coeff_of_determination (output, predictions)
         print ("Coefficients of determination: " + str (coeffs))
@@ -183,19 +189,21 @@ class QLearn:
 
         #sums_of_columns_real = [ sum(x) for x in zip(*real) ]
         #sums_of_columns_prediction = [ sum(x) for x in zip(*prediction) ]
-        print (prediction)
+        #print (prediction)
         
         r_squared = []
-        for i in range (0, len (real)):
+        for i in range (0, len (real[0])):
             col_real = [row[i] for row in real]
             col_prediction = [row[i] for row in prediction]
 
             mean = self.mean(col_real)
-            ss_total = self.variance (col_real) * len (col_real)
+            #ss_total = self.variance (col_real) * len (col_real)
             
+            ss_total = 0
             ss_reg = 0
-            for pred in col_prediction:
-                ss_reg += (pred - mean) ** 2
+            for testnum in range (0, len(col_prediction)):
+                ss_total += (col_real[testnum] - mean) ** 2
+                ss_reg += (col_prediction[testnum] - mean) ** 2
 
             if (ss_total == 0):
                 r_squared.append (-1)

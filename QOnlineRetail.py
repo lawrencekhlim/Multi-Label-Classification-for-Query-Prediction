@@ -10,7 +10,7 @@ class QOnlineRetail:
         
         
         
-        with open ('timeseriesOnlineRetail.csv', 'r') as f:
+        with open ('timeseriesOnlineRetailCleaned2.csv', 'r') as f:
             reader = csv.reader(f, delimiter=',')
             title_row = True
             for row in reader:
@@ -25,21 +25,18 @@ class QOnlineRetail:
     
     
     def clean_data (self):
-        self.data_used = []
-        self.new_data = []
-        self.cleaned = True
+        data_used = []
+        new_data = []
+        new_header = []
         
         uncleaned_training_data = self.data[int (360*self.training[0]):int(360*self.training[1])]
         #print (len (uncleaned_training_data))
         
-        
         sums_of_columns = [ sum(x) for x in zip(*uncleaned_training_data) ]
         #print (sums_of_columns)
         
-        
         mean = sum (sums_of_columns) / len (sums_of_columns)
         #print ("Mean = " + str(mean))
-        
         
         variance = 0
         for i in range (0, len (sums_of_columns)):
@@ -72,11 +69,31 @@ class QOnlineRetail:
         std_dev_of_nonzero_columns = variance_of_nonzero_columns ** 0.5
         #print ("Standard Deviation of non-zero columns = " + str(std_dev_of_nonzero_columns))
         
+        
         # Remove data one standard deviation below the non-zero mean
+        lower_cutoff = mean_of_nonzero_columns - std_dev_of_nonzero_columns +3
+        print ("Lower cutoff = " + str(lower_cutoff))
+        for i in range (0, len(sums_of_columns)):
+            if (sums_of_columns[i] > lower_cutoff):
+                data_used.append (i)
+                new_header.append (self.products[i])
+
+        for row in range (0, len (self.data)):
+            new_data.append ([])
+            for col in range (0, len (self.data[row])):
+                if (col in data_used):
+                    new_data[row].append (self.data[row][col])
+        #self.data = new_data
+        #print (new_data)
+
+        print ("Writing into CSV")
+        with open ('timeseriesOnlineRetailCleaned.csv', "w") as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow (new_header)
+            writer.writerows (new_data)
+
         
-        
-        
-        
+    
     
     def validate_predictor (self):
         input = []
@@ -126,6 +143,7 @@ class QOnlineRetail:
 
 if __name__== "__main__":
     test = QOnlineRetail ()
+    
     #test.clean_data()
 
     test.train_data()
