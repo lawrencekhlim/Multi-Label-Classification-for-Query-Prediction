@@ -24,11 +24,13 @@ import numpy as np
 class QLearn:
 
 
-    def __init__ (self, threshold=0.5):
+    def __init__ (self, threshold=0.5, regularization=True):
         self.trained = False
         self.X = [] # 2d array, first dimension is the data point, second dimension is the values of the data point
         self.Y = []
+        
         self.threshold = threshold
+        self.regularization = regularization
     
     def train (self, X=None, Y=None):
         if X == None and Y == None:
@@ -113,10 +115,10 @@ class QLearn:
         '''
         return (Utruncated, sigma, VTtruncated)
 
-    def predict (self, input, regularize=True):
+    def predict (self, input):
         if (self.trained):
             vec = np.matrix(self.Z * np.matrix ([input]).transpose()).transpose().getA()[0].tolist()
-            if (regularize):
+            if (self.regularization):
                 return self.regularize (vec, self.threshold)
             else:
                 return vec
@@ -142,7 +144,6 @@ class QLearn:
                 print ("L2 Error:  " + str (err))
                 print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
                 print ("")
-                #print (len (output[i]))
         total_error = total_error / len (output)
         print ("Average Error L2: " + str (total_error))
         

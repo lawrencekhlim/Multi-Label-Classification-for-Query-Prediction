@@ -23,10 +23,10 @@ class QOnlineRetail:
                     integer_data = [int(i) for i in row]
                     self.data.append (integer_data)
         #print (self.data)
-        self.predictor = QLearn(threshold=0.4)
+        self.predictor = QLearn(thresold=0.5, regularization=True)
         self.baseline1 = NaiveModel()
         self.baseline2 = EarliestModel()
-        self.baseline3 = AverageModel()
+        self.baseline3 = AverageModel(threshold=0.75, regularization=True)
     
     
     def clean_data (self):
@@ -117,6 +117,8 @@ class QOnlineRetail:
             week_data = week_data+ today
             for i in range (len (self.data[0])):
                 week_data.pop (0)
+        
+        print ()
         print ("Linear Algebra Model")
         self.predictor.test_model (input, output, verbose=False)
         
