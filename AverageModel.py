@@ -3,9 +3,6 @@ from Model import NaiveModel
 import numpy as numpy
 
 class AverageModel(NaiveModel):
-    def __init__ (self, threshold=0.5, regularization=True):
-        self.threshold = threshold
-        self.regularization = regularization
     
     def predict (self, input):
         out = self.output_size * [0]

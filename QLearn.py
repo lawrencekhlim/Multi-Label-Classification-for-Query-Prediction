@@ -130,6 +130,9 @@ class QLearn:
 
         #coeffs = self.coeff_of_determination (output, predictions)
         #print ("Coefficients of determination: " + str (coeffs))
+
+        cntng_table = self.contingency_table (output, predictions)
+        print (cntng_table[0])
      
      
      
@@ -170,7 +173,7 @@ class QLearn:
         # returns V, sigma^-1, UT
         return (V, arr, UT)
 
-    # Try dimensionality reduction
+    # dimensionality reduction
     def dimension_reduction (self, U, sigma, VT):
         ktruncate = 0
         while (ktruncate < len (sigma) and sigma[ktruncate] > 0.001):
@@ -233,9 +236,30 @@ class QLearn:
         for value in list:
             variance += (value - mean) ** 2
         return variance / len(list)
-  
-  
-  
+
+    """
+        Returns a contingency table
+    """
+    def contingency_table (self, real, prediction):
+        table = []
+        for i in range (0, len (real[0])):
+            table.append ([0, 0, 0, 0])
+            for b in range (0, len (real)):
+                if (real[b][i] == 1):
+                    if (prediction [b][i] >= self.threshold):
+                        table[i][0] += 1 # True positive
+                    else:
+                        table[i][2] += 1 # False negative
+                else:
+                    if (prediction[b][i] >= self.threshold):
+                        table[i][1] += 1 # False positive
+                    else:
+                        table[i][3] += 1 # True negative
+        return table
+
+    """
+        Returns an R^2 term that shows how much the model explains the variance
+    """
     def coeff_of_determination (self, real, prediction):
 
         #sums_of_columns_real = [ sum(x) for x in zip(*real) ]

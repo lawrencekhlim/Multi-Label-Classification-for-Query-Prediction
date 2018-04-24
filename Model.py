@@ -1,6 +1,10 @@
 import numpy as np
 
 class NaiveModel:
+    def __init__ (self, threshold=0.5, regularization=False):
+        self.threshold = threshold
+        self.regularization = regularization
+    
     def train (self, X, Y):
         Y1 = np.matrix (Y).transpose().tolist()
         y1_rows = len (Y1)
@@ -38,6 +42,9 @@ class NaiveModel:
         
         rmsd = (total_error / len (output[0]))**0.5
         print ("RMSD: " + str(rmsd))
+    
+        cntng_table = self.contingency_table (output, predictions)
+        print (cntng_table[0])
 
     def l2_error (self, real, prediction):
         error = 0
@@ -54,6 +61,26 @@ class NaiveModel:
         for value in list:
             variance += (value - mean) ** 2
         return variance / len(list)
+
+    """
+    Returns a contingency table
+    """
+    def contingency_table (self, real, prediction):
+        table = []
+        for i in range (0, len (real[0])):
+            table.append ([0, 0, 0, 0])
+            for b in range (0, len (real)):
+                if (real[b][i] == 1):
+                    if (prediction [b][i] >= self.threshold):
+                        table[i][0] += 1 # True positive
+                    else:
+                        table[i][2] += 1 # False negative
+                else:
+                    if (prediction[b][i] >= self.threshold):
+                        table[i][1] += 1 # False positive
+                    else:
+                        table[i][3] += 1 # True negative
+        return table
 
 
 class EarliestModel (NaiveModel):
