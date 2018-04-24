@@ -24,10 +24,11 @@ import numpy as np
 class QLearn:
 
 
-    def __init__ (self):
+    def __init__ (self, threshold=0.5):
         self.trained = False
         self.X = [] # 2d array, first dimension is the data point, second dimension is the values of the data point
         self.Y = []
+        self.threshold = threshold
     
     def train (self, X=None, Y=None):
         if X == None and Y == None:
@@ -112,9 +113,13 @@ class QLearn:
         '''
         return (Utruncated, sigma, VTtruncated)
 
-    def predict (self, input):
+    def predict (self, input, regularize=True):
         if (self.trained):
-            return np.matrix(self.Z * np.matrix ([input]).transpose()).transpose().getA()[0]
+            vec = np.matrix(self.Z * np.matrix ([input]).transpose()).transpose().getA()[0].tolist()
+            if (regularize):
+                return self.regularize (vec, self.threshold)
+            else:
+                return vec
         else:
             return 0
 
@@ -123,7 +128,7 @@ class QLearn:
         predictions = []
         
         for i in range (len (output)):
-            prediction = self.predict (input[i]).tolist()
+            prediction = self.predict (input[i])
             predictions.append (prediction)
             err = self.l2_error (output[i], prediction)
             total_error += err
@@ -170,6 +175,22 @@ class QLearn:
             print ("")
             print ("")
         """
+    
+    """
+        vector: a list of values (typically between 0 and 1)
+        threshold: The threshold in which the values must be above to be 0 or 1
+        
+        Turns values in the list either 1 if it that value is greater than the threshold or
+        0 if smaller than the threshold value.
+    """
+    def regularize (self, vector, threshold):
+        for i in range (len (vector)):
+            if (vector[i] >= threshold):
+                vector[i] = 1
+            else:
+                vector[i] = 0
+        return vector
+    
 
     def l2_error (self, real, prediction):
         error = 0

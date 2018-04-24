@@ -23,7 +23,7 @@ class QOnlineRetail:
                     integer_data = [int(i) for i in row]
                     self.data.append (integer_data)
         #print (self.data)
-        self.predictor = QLearn()
+        self.predictor = QLearn(threshold=0.4)
         self.baseline1 = NaiveModel()
         self.baseline2 = EarliestModel()
         self.baseline3 = AverageModel()
@@ -132,6 +132,7 @@ class QOnlineRetail:
         print ("Average of Past Days Model")
         self.baseline3.test_model (input, output, verbose=False)
         
+
     
     def train_data (self):
         input = []
