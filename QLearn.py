@@ -38,20 +38,20 @@ class QLearn:
         Y1 = np.matrix (Y).transpose().tolist()
         
         
-        decomp = np.linalg.svd (X1)
-        U = decomp[0]
-        singularValues = decomp [1]
-        VT = decomp [2]
+        #decomp = np.linalg.svd (X1)
+        #U = decomp[0]
+        #singularValues = decomp [1]
+        #VT = decomp [2]
         
         # Do dimension reduction
-        self.truncated = self.dimension_reduction (U, singularValues, VT)
+        #self.truncated = self.dimension_reduction (U, singularValues, VT)
         
         # Computer the inverse
-        SVD_inverse = self.find_inverse (self.truncated[0], self.truncated[1], self.truncated[2])
-        inv = np.matmul(np.matmul(SVD_inverse[0], SVD_inverse[1]), SVD_inverse[2])
+        #SVD_inverse = self.find_inverse (self.truncated[0], self.truncated[1], self.truncated[2])
+        #inv = np.matmul(np.matmul(SVD_inverse[0], SVD_inverse[1]), SVD_inverse[2])
         
         # Reliable and computationally faster than
-        #inv = np.linalg.pinv(X1)
+        inv = np.linalg.pinv(X1)
         
         self.Z = np.matmul(Y1, inv)
         self.trained = True
@@ -137,17 +137,20 @@ class QLearn:
                 print ("L2 Error:  " + str (err))
                 print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
                 print ("")
+                print (len (output[i]))
         total_error = total_error / len (output)
         print ("Average Error L2: " + str (total_error))
         
         rmsd = (total_error / len (output[0]))**0.5
         print ("RMSD: " + str(rmsd))
         
-        coeffs = self.coeff_of_determination (output, predictions)
-        print ("Coefficients of determination: " + str (coeffs))
+        #coeffs = self.coeff_of_determination (output, predictions)
+        #print ("Coefficients of determination: " + str (coeffs))
         
-
+    
     def print_concepts (self, number_of_concepts=1):
+        
+        """
         rank = len (self.truncated[2]) # The rank is equal to the number of rows in V transpose
         print ("Rank = " + str(rank))
         
@@ -166,6 +169,7 @@ class QLearn:
             print (concept.tolist())
             print ("")
             print ("")
+        """
 
     def l2_error (self, real, prediction):
         error = 0

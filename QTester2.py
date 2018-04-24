@@ -85,4 +85,4 @@ if __name__== "__main__":
     test = QTester2 ()
     test.train_data()
     test.test_predictor()
-    test.print_concepts()
+    #test.print_concepts()
