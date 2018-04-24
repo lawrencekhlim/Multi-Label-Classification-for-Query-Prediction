@@ -32,6 +32,23 @@ class QLearn:
         self.threshold = threshold
         self.regularization = regularization
     
+    
+    #----------------------- Training -------------------------
+
+    """
+    Deprecated
+    """
+    """
+    def add_data_point (self, x, y):
+        self.X.append (x)
+        self.Y.append (y)
+    """
+
+
+    def set_training_data (self, input, output):
+        self.X = input
+        self.Y = output
+
     def train (self, X=None, Y=None):
         if X == None and Y == None:
             X = self.X
@@ -58,8 +75,67 @@ class QLearn:
         
         self.Z = np.matmul(Y1, inv)
         self.trained = True
-            
-            
+     
+     
+    #-------------------------- Prediction and testing ------------------
+    def predict (self, input):
+        if (self.trained):
+            vec = np.matrix(self.Z * np.matrix ([input]).transpose()).transpose().getA()[0].tolist()
+            if (self.regularization):
+                return self.regularize (vec, self.threshold)
+            else:
+                return vec
+        else:
+            return 0
+    
+    """
+        vector: a list of values (typically between 0 and 1)
+        threshold: The threshold in which the values must be above to be 0 or 1
+        
+        Turns values in the list either 1 if it that value is greater than the threshold or
+        0 if smaller than the threshold value.
+    """
+    def regularize (self, vector, threshold):
+        for i in range (len (vector)):
+            if (vector[i] >= threshold):
+                vector[i] = 1
+            else:
+                vector[i] = 0
+        return vector
+
+    def test_model (self, input, output, verbose=True):
+        total_error = 0
+        predictions = []
+        
+        for i in range (len (output)):
+            prediction = self.predict (input[i])
+            predictions.append (prediction)
+            err = self.l2_error (output[i], prediction)
+            total_error += err
+            if verbose:
+                print (str (i+1)+ ") ")
+                print ("\tActual\t\tPredicted")
+                for prod in range (0, len (output[i])):
+                    print ("\t"+str(output [i][prod])+"\t\t"+str(prediction[prod]))
+                #print ("Actual:    " + str(output[i]))
+                #print ("Predicted: "+ str(prediction))
+                print ("L2 Error:  " + str (err))
+                print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
+                print ("")
+        total_error = total_error / len (output)
+        print ("Average Error L2: " + str (total_error))
+        
+        rmsd = (total_error / len (output[0]))**0.5
+        print ("RMSD: " + str(rmsd))
+
+        #coeffs = self.coeff_of_determination (output, predictions)
+        #print ("Coefficients of determination: " + str (coeffs))
+     
+     
+     
+     
+    #------------------------ SVD --------------------------
+    
     def createSingularValuesMatrix (self, U, sigma, VT):
         numCols = len(VT)   # number of columns is equal to the number of rows of VT
         numRows = len(U[0])       # number of rows is equal to the number of columns of U
@@ -114,45 +190,6 @@ class QLearn:
         arr[i][i] = sigma[i]
         '''
         return (Utruncated, sigma, VTtruncated)
-
-    def predict (self, input):
-        if (self.trained):
-            vec = np.matrix(self.Z * np.matrix ([input]).transpose()).transpose().getA()[0].tolist()
-            if (self.regularization):
-                return self.regularize (vec, self.threshold)
-            else:
-                return vec
-        else:
-            return 0
-
-    def test_model (self, input, output, verbose=True):
-        total_error = 0
-        predictions = []
-        
-        for i in range (len (output)):
-            prediction = self.predict (input[i])
-            predictions.append (prediction)
-            err = self.l2_error (output[i], prediction)
-            total_error += err
-            if verbose:
-                print (str (i+1)+ ") ")
-                print ("\tActual\t\tPredicted")
-                for prod in range (0, len (output[i])):
-                    print ("\t"+str(output [i][prod])+"\t\t"+str(prediction[prod]))
-                #print ("Actual:    " + str(output[i]))
-                #print ("Predicted: "+ str(prediction))
-                print ("L2 Error:  " + str (err))
-                print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
-                print ("")
-        total_error = total_error / len (output)
-        print ("Average Error L2: " + str (total_error))
-        
-        rmsd = (total_error / len (output[0]))**0.5
-        print ("RMSD: " + str(rmsd))
-        
-        #coeffs = self.coeff_of_determination (output, predictions)
-        #print ("Coefficients of determination: " + str (coeffs))
-        
     
     def print_concepts (self, number_of_concepts=1):
         
@@ -177,21 +214,9 @@ class QLearn:
             print ("")
         """
     
-    """
-        vector: a list of values (typically between 0 and 1)
-        threshold: The threshold in which the values must be above to be 0 or 1
-        
-        Turns values in the list either 1 if it that value is greater than the threshold or
-        0 if smaller than the threshold value.
-    """
-    def regularize (self, vector, threshold):
-        for i in range (len (vector)):
-            if (vector[i] >= threshold):
-                vector[i] = 1
-            else:
-                vector[i] = 0
-        return vector
-    
+
+
+    #---------------------- Error Metrics -----------------------
 
     def l2_error (self, real, prediction):
         error = 0
@@ -238,18 +263,5 @@ class QLearn:
         return r_squared
 
 
-    """
-            Deprecated
-    """
-    """
-    def add_data_point (self, x, y):
-        self.X.append (x)
-        self.Y.append (y)
-    """
-
-
-    def set_training_data (self, input, output):
-        self.X = input
-        self.Y = output
 
 

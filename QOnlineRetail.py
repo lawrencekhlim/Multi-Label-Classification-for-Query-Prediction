@@ -23,7 +23,7 @@ class QOnlineRetail:
                     integer_data = [int(i) for i in row]
                     self.data.append (integer_data)
         #print (self.data)
-        self.predictor = QLearn(thresold=0.5, regularization=True)
+        self.predictor = QLearn(threshold=0.5, regularization=True)
         self.baseline1 = NaiveModel()
         self.baseline2 = EarliestModel()
         self.baseline3 = AverageModel(threshold=0.75, regularization=True)
