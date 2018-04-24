@@ -1,6 +1,6 @@
 import numpy as np
 
-class Baseline:
+class NaiveModel:
     def train (self, X, Y):
         Y1 = np.matrix (Y).transpose().tolist()
         y1_rows = len (Y1)
@@ -33,7 +33,6 @@ class Baseline:
                 print ("L2 Error:  " + str (err))
                 print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
                 print ("")
-                print (len (output[i]))
         total_error = total_error / len (output)
         print ("Average Error L2: " + str (total_error))
         
@@ -55,3 +54,12 @@ class Baseline:
         for value in list:
             variance += (value - mean) ** 2
         return variance / len(list)
+
+
+class EarliestModel (NaiveModel):
+
+    def predict (self, input):
+        out = self.output_size * [0]
+        for i in range (0, self.output_size):
+            out[i] = input [i]
+        return out

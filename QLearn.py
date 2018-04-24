@@ -137,7 +137,7 @@ class QLearn:
                 print ("L2 Error:  " + str (err))
                 print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
                 print ("")
-                print (len (output[i]))
+                #print (len (output[i]))
         total_error = total_error / len (output)
         print ("Average Error L2: " + str (total_error))
         

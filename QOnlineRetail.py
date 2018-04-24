@@ -1,6 +1,7 @@
 import csv
 from QLearn import QLearn
-from Baseline import Baseline
+from Model import NaiveModel, EarliestModel
+from AverageModel import AverageModel
 
 class QOnlineRetail:
     def __init__ (self):
@@ -8,7 +9,7 @@ class QOnlineRetail:
         self.training = (0, 0.5)
         self.validation = (0.5, 0.8)
         self.testing = (0.8, 1)
-        self.data_size = 2
+        self.data_size = 7
         
         
         with open ('timeseriesOnlineRetailCleaned2.csv', 'r') as f:
@@ -23,7 +24,9 @@ class QOnlineRetail:
                     self.data.append (integer_data)
         #print (self.data)
         self.predictor = QLearn()
-        self.baseline = Baseline()
+        self.baseline1 = NaiveModel()
+        self.baseline2 = EarliestModel()
+        self.baseline3 = AverageModel()
     
     
     def clean_data (self):
@@ -114,8 +117,20 @@ class QOnlineRetail:
             week_data = week_data+ today
             for i in range (len (self.data[0])):
                 week_data.pop (0)
+        print ("Linear Algebra Model")
         self.predictor.test_model (input, output, verbose=False)
-        self.baseline.test_model (input, output, verbose=False)
+        
+        print ()
+        print ("Previous Day Naive Model")
+        self.baseline1.test_model (input, output, verbose=False)
+        
+        print ()
+        print ("Earliest Day Naive Model")
+        self.baseline2.test_model (input, output, verbose=False)
+        
+        print ()
+        print ("Average of Past Days Model")
+        self.baseline3.test_model (input, output, verbose=False)
         
     
     def train_data (self):
@@ -139,7 +154,11 @@ class QOnlineRetail:
         print ("Training Model...")
         self.predictor.train()
         
-        self.baseline.train(input, output)
+        self.baseline1.train(input, output)
+        
+        self.baseline2.train (input, output)
+        
+        self.baseline3.train (input, output)
         print ("... Done Training")
 
 
