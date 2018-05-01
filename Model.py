@@ -19,14 +19,17 @@ class NaiveModel:
 
 
     def test_model (self, input, output, verbose=True):
-        total_error = 0
+        total_l2_error = 0
+        total_l1_error = 0
         predictions = []
         
         for i in range (len (output)):
             prediction = self.predict (input[i])
             predictions.append (prediction)
             err = self.l2_error (output[i], prediction)
-            total_error += err
+            total_l2_error += err
+            err = self.l1_error (output[i], prediction)
+            total_l1_error += err
             if verbose:
                 print (str (i+1)+ ") ")
                 print ("\tActual\t\tPredicted")
@@ -37,14 +40,29 @@ class NaiveModel:
                 print ("L2 Error:  " + str (err))
                 print ("Std Dev:   " + str ((err/len (output[i])) ** (0.5)))
                 print ("")
-        total_error = total_error / len (output)
-        print ("Average Error L2: " + str (total_error))
+        total_l2_error = total_l2_error / len (output)
+        print ("Average Error L2: " + str (total_l2_error))
         
-        rmsd = (total_error / len (output[0]))**0.5
+        rmsd = (total_l2_error / len (output[0]))**0.5
         print ("RMSD: " + str(rmsd))
-    
+        
+        total_l1_error = total_l1_error / len (output)
+        print ("Average Error L1: " + str (total_l2_error))
+        
+        average_deviation = (total_l1_error / len (output[0]))
+        print ("Average Deviation per Query: " + str(average_deviation))
+        
+        #coeffs = self.coeff_of_determination (output, predictions)
+        #print ("Coefficients of determination: " + str (coeffs))
+        
         cntng_table = self.contingency_table (output, predictions)
         print (cntng_table[0])
+        
+    def l1_error (self, real, prediction):
+        error = 0
+        for i in range (len (real)):
+            error += abs(real[i] - prediction[i])
+        return error
 
     def l2_error (self, real, prediction):
         error = 0

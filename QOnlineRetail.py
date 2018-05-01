@@ -154,6 +154,10 @@ class QOnlineRetail:
             for i in range (len (self.data[0])):
                 week_data.pop (0)
         self.predictor.set_training_data (input, output)
+        
+        print ("")
+        print ("Window size " + str (self.data_size) + " days")
+        print ("")
         print ("Training Model...")
         self.predictor.train()
         
