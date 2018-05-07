@@ -2,6 +2,7 @@ import csv
 from QLearn import QLearn
 from Model import NaiveModel, EarliestModel
 from AverageModel import AverageModel
+#from RNNModel import RNNModel
 
 class QOnlineRetail:
     def __init__ (self):
@@ -23,7 +24,8 @@ class QOnlineRetail:
                     integer_data = [int(i) for i in row]
                     self.data.append (integer_data)
         #print (self.data)
-        self.predictor = QLearn(threshold=0.5, regularization=True)
+        self.predictor1 = QLearn(threshold=0.5, regularization=True)
+        #self.predictor2 = RNNModel ()
         self.baseline1 = NaiveModel()
         self.baseline2 = EarliestModel()
         self.baseline3 = AverageModel(threshold=0.75, regularization=True)
@@ -120,7 +122,8 @@ class QOnlineRetail:
         
         print ()
         print ("Linear Algebra Model")
-        self.predictor.test_model (input, output, verbose=False)
+        self.predictor1.test_model (input, output, verbose=False)
+        #self.predictor1.print_concepts()
         
         print ()
         print ("Previous Day Naive Model")
@@ -134,6 +137,12 @@ class QOnlineRetail:
         print ("Average of Past Days Model")
         self.baseline3.test_model (input, output, verbose=False)
         
+    
+        """
+        print ()
+        print ("RNN Model")
+        self.predictor2.test_model_keras (input, output)
+        """
 
     
     def train_data (self):
@@ -153,24 +162,26 @@ class QOnlineRetail:
             week_data = week_data+ today
             for i in range (len (self.data[0])):
                 week_data.pop (0)
-        self.predictor.set_training_data (input, output)
+        self.predictor1.set_training_data (input, output)
         
         print ("")
         print ("Window size " + str (self.data_size) + " days")
         print ("")
         print ("Training Model...")
-        self.predictor.train()
+        self.predictor1.train()
         
         self.baseline1.train(input, output)
         
         self.baseline2.train (input, output)
         
         self.baseline3.train (input, output)
+        
+        #self.predictor2.train (input, output)
         print ("... Done Training")
 
 
     def print_concepts (self):
-        self.predictor.print_concepts()
+        self.predictor1.print_concepts()
 
 
 if __name__== "__main__":

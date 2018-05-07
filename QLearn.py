@@ -10,7 +10,7 @@ import numpy as np
 # PhD. Vaibhav
 # Victor
 
-# TODO: Regularization to prevent overfitting
+# TODO: Regularization to prevent overfitting * CHECK!
 # Synthesis of another dataset?
 # Make sure that the math absolutely checks out?
 # Understand the meaning of "concepts" in SVD
@@ -31,6 +31,7 @@ class QLearn:
         
         self.threshold = threshold
         self.regularization = regularization
+        self.regularization_rate = 1
     
     
     #----------------------- Training -------------------------
@@ -70,11 +71,66 @@ class QLearn:
         #SVD_inverse = self.find_inverse (self.truncated[0], self.truncated[1], self.truncated[2])
         #inv = np.matmul(np.matmul(SVD_inverse[0], SVD_inverse[1]), SVD_inverse[2])
         
-        # Reliable and computationally faster than
-        inv = np.linalg.pinv(X1)
+        
+        """
+            First implementation
+        # Reliable and computationally faster than SVD
+        #inv = np.linalg.pinv(X1)
+        """
+        
+        """
+            Z*X = Y
+            Z*X*XT = Y*XT
+            Z*(X*XT) * (X*XT+phi*I)^-1 = Y*XT * (X*XT+phi*I)^-1
+            Z = Y*XT * (X*XT+phi*I)^-1
+        """
+        
+        """
+            New implementation
+        """
+        x_times_x_transpose = np.matmul (X1, np.matrix(X1).transpose()).tolist()
+        
+        #print ("Completed x times x transpose")
+        
+        """
+            Second (new implementation)
+        regularization_matrix = []
+        for row in range (0, x_times_x_transpose.shape [0]):
+            regularization_matrix.append ([])
+            for col in range (0, x_times_x_transpose.shape[1]):
+                if (row != col):
+                    regularization_matrix[row].append (0.0)
+                else:
+                    regularization_matrix[row].append (self.regularization_rate)
+        
+        #print (regularization_matrix)
+        
+            
+        x_times_x_transpose_plus_regularization = np.add (x_times_x_transpose, regularization_matrix)
+        
+        inv = np.matmul (np.matrix(X1).transpose(), np.linalg.inv(x_times_x_transpose_plus_regularization))
+        """
+        
+        """
+            Third (new implementation)
+        """
+        
+        for row in range (0, len(x_times_x_transpose)):
+            x_times_x_transpose [row][row] += self.regularization_rate
+        
+        inv = np.matmul (np.matrix(X1).transpose(), np.linalg.inv(np.matrix(x_times_x_transpose)))
         
         self.Z = np.matmul(Y1, inv)
         self.trained = True
+
+
+        #decomp = np.linalg.svd (inv)
+        #U = decomp[0]
+        #singularValues = decomp [1]
+        #VT = decomp [2]
+
+        # Do dimension reduction
+        #self.truncated = self.dimension_reduction (U, singularValues, VT)
      
      
     #-------------------------- Prediction and testing ------------------
@@ -140,6 +196,7 @@ class QLearn:
         #coeffs = self.coeff_of_determination (output, predictions)
         #print ("Coefficients of determination: " + str (coeffs))
 
+        print ("[TP, FP, FN, TN]")
         cntng_table = self.contingency_table (output, predictions)
         print (cntng_table[0])
      
@@ -204,7 +261,7 @@ class QLearn:
         return (Utruncated, sigma, VTtruncated)
     
     def print_concepts (self, number_of_concepts=1):
-        
+        print (self.truncated[1])
         """
         rank = len (self.truncated[2]) # The rank is equal to the number of rows in V transpose
         print ("Rank = " + str(rank))
