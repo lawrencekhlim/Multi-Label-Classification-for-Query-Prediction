@@ -2,14 +2,14 @@ import csv
 from QLearn import QLearn
 from Model import NaiveModel, EarliestModel
 from AverageModel import AverageModel
-from RNNModel import RNNModel
-from GRUModel import GRUModel
+#from RNNModel import RNNModel
+#from GRUModel import GRUModel
 
 class QOnlineRetail:
     def __init__ (self):
         self.data = []
-        self.training = (0, 0.5)
-        self.validation = (0.5, 8)
+        self.training = (0, 0.6)
+        self.validation = (0.6, 0.8)
         self.testing = (0.8, 1)
         self.data_size = 24
         self.total_data = 24*36
