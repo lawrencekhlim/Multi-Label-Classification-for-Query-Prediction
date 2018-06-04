@@ -1,6 +1,8 @@
 import numpy as np
 import keras.layers as L
+#from keras.layers.advanced_activations import LeakyReLU
 import keras.models as M
+import keras.optimizers as O
 
 import numpy
 
@@ -64,16 +66,80 @@ class RNNModel:
         #self.window_size is the number of time steps
         #self.input_output_size is the number of features
         #This sets up the model so it can support the chosen time step size and number of features
+        
+        """
         model_input = L.Input (shape=(self.window_size, self.input_output_size))
         
+        print ("Creating layer 1")
+        model_l1 = L.LSTM (self.input_output_size, return_sequences=True, activation='softmax') (model_input)
+        
         print ("Creating output")
-        model_output = L.LSTM (self.input_output_size, activation='softmax') (model_input)
+        model_output = L.LSTM (self.input_output_size, return_sequences=True, activation='softmax') (model_l1)
         
         print ("Creating model")
         self.model = M.Model (input=model_input, output=model_output)
             
         print ("Compiling model")
         self.model.compile (loss='mean_absolute_error', optimizer='sgd')
+        """
+        
+        self.model = M.Sequential()
+        print ("layer 1")
+        self.model.add(L.LSTM(self.input_output_size, return_sequences=True, input_shape=(self.window_size, self.input_output_size), activation='softmax'))  # returns a sequence of vectors of dimension self.input_output_size
+        
+        #self.model.add(LeakyReLU(alpha=.3))
+        
+        print ("layer 2")
+        """
+        self.model.add(L.LSTM(self.input_output_size))  # returns a sequence of vectors of dimension self.input_output_size
+        """
+        self.model.add(L.LSTM(self.input_output_size, return_sequences=True, activation='softmax'))  # returns a sequence of vectors of dimension self.input_output_size
+        #self.model.add(L.LeakyReLU(alpha=.001))
+        print ("layer 3")
+        self.model.add(L.LSTM(self.input_output_size, activation='softmax'))  # return a single vector of dimension self.input_output_size
+        
+        """
+        print ("layer 4")
+        self.model.add(L.LSTM(self.input_output_size, return_sequences=True))  # return a single vector of dimension self.input_output_size
+        
+        print ("layer 5")
+        self.model.add(L.LSTM(self.input_output_size, return_sequences=True))  # return a single vector of dimension self.input_output_size
+    
+        print ("layer 6")
+        self.model.add(L.LSTM(self.input_output_size, return_sequences=True))  # return a single vector of dimension self.input_output_size
+
+        print ("layer 7")
+        self.model.add(L.LSTM(self.input_output_size))  # return a single vector of dimension self.input_output_size
+        #"""
+        
+        #"""
+        print ("Adding Dense model")
+        self.model.add(L.Dense(self.input_output_size, activation='softmax'))
+        
+        #print ("Adding Activation layer")
+        #self.model.add(L.Dense(self.input_output_size, activation='sigmoid'))
+        """
+        #"""
+
+        print ("Compiling model")
+        
+        print ("Choosing optimizer")
+        #"""
+        print ("Using RMSprop")
+        optimizer = O.RMSprop(lr=0.001, rho=0.9, epsilon=None, decay=0.00005)
+        """
+        print ("Using SGD")
+        optimizer = O.SGD(lr=0.01, momentum=0.0, decay=0.0, nesterov=False)
+        #"""
+        
+        print ("Choosing loss")
+        #""" # place a '#' in front of the '"""' to choose this loss function
+        print ("Using MAE")
+        self.model.compile (loss='mean_absolute_error', optimizer=optimizer)
+        """
+        print ("Using MSE")
+        self.model.compile (loss='mean_squared_error', optimizer=optimizer)
+        #"""
         
         
         print ("Fitting data")
@@ -172,6 +238,7 @@ class RNNModel:
         #print ("Coefficients of determination: " + str (coeffs))
         
         cntng_table = self.contingency_table (output, predictions)
+        print ("[TP, FP, FN, TN]")
         print (cntng_table[0])
     
     def l1_error (self, real, prediction):

@@ -72,11 +72,11 @@ class QLearn:
         #inv = np.matmul(np.matmul(SVD_inverse[0], SVD_inverse[1]), SVD_inverse[2])
         
         
-        """
+        #"""
             First implementation
         # Reliable and computationally faster than SVD
         #inv = np.linalg.pinv(X1)
-        """
+        #"""
         
         """
             Z*X = Y
@@ -88,7 +88,7 @@ class QLearn:
         """
             New implementation
         """
-        x_times_x_transpose = np.matmul (X1, np.matrix(X1).transpose()).tolist()
+        #x_times_x_transpose = np.matmul (X1, np.matrix(X1).transpose()).tolist()
         
         #print ("Completed x times x transpose")
         
@@ -114,13 +114,13 @@ class QLearn:
         """
             Third (new implementation)
         """
+        # Uncomment the following
+        #for row in range (0, len(x_times_x_transpose)):
+        #    x_times_x_transpose [row][row] += self.regularization_rate
         
-        for row in range (0, len(x_times_x_transpose)):
-            x_times_x_transpose [row][row] += self.regularization_rate
+        #inv = np.matmul (np.matrix(X1).transpose(), np.linalg.inv(np.matrix(x_times_x_transpose)))
         
-        inv = np.matmul (np.matrix(X1).transpose(), np.linalg.inv(np.matrix(x_times_x_transpose)))
-        
-        self.Z = np.matmul(Y1, inv)
+        #self.Z = np.matmul(Y1, inv)
         self.trained = True
 
 
