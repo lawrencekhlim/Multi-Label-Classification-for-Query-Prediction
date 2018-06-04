@@ -12,7 +12,7 @@ class QOnlineRetail:
         self.validation = (0.5, 8)
         self.testing = (0.8, 1)
         self.data_size = 24
-        
+        self.total_data = 24*36
         
         with open ('hourlyTimeSeriesOnlineRetail.csv', 'r') as f:
             reader = csv.reader(f, delimiter=',')
@@ -108,12 +108,12 @@ class QOnlineRetail:
         output = []
         
         week_data = []
-        for days in range (int (360*self.validation[0]), int (360*self.validation[0])+self.data_size):
+        for days in range (int (self.total_data*self.validation[0]), int (self.total_data*self.validation[0])+self.data_size):
             today = self.data[days]
             week_data = week_data+ today
     
     
-        for days in range (int (360*self.validation[0])+self.data_size, int(360*self.validation[1])):
+        for days in range (int (self.total_data*self.validation[0])+self.data_size, int(self.total_data*self.validation[1])):
             today = self.data[days]
             input.append (week_data)
             output.append (today)
@@ -152,12 +152,12 @@ class QOnlineRetail:
         output = []
         
         week_data = []
-        for days in range (int (360*self.training[0]), int (360*self.training[0])+self.data_size):
+        for days in range (int (self.total_data*self.training[0]), int (self.total_data*self.training[0])+self.data_size):
             today = self.data[days]
             week_data = week_data+ today
         
         
-        for days in range (int (360*self.training[0])+self.data_size, int(360*self.training[1])):
+        for days in range (int (self.total_data*self.training[0])+self.data_size, int(self.total_data*self.training[1])):
             today = self.data[days]
             input.append (week_data)
             output.append (today)

@@ -73,9 +73,9 @@ class QLearn:
         
         
         #"""
-            First implementation
+        #    First implementation
         # Reliable and computationally faster than SVD
-        #inv = np.linalg.pinv(X1)
+        inv = np.linalg.pinv(X1)
         #"""
         
         """
@@ -120,7 +120,7 @@ class QLearn:
         
         #inv = np.matmul (np.matrix(X1).transpose(), np.linalg.inv(np.matrix(x_times_x_transpose)))
         
-        #self.Z = np.matmul(Y1, inv)
+        self.Z = np.matmul(Y1, inv)
         self.trained = True
 
 
