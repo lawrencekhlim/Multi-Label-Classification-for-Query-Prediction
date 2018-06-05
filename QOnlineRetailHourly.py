@@ -14,7 +14,7 @@ class QOnlineRetail:
         self.data_size = 24
         self.total_data = 24*36
         
-        with open ('hourlyTimeSeriesOnlineRetail.csv', 'r') as f:
+        with open ('hourlyTimeSeriesOnlineRetailCleaned.csv', 'r') as f:
             reader = csv.reader(f, delimiter=',')
             title_row = True
             for row in reader:
@@ -78,8 +78,9 @@ class QOnlineRetail:
         print ("Standard Deviation of non-zero columns = " + str(std_dev_of_nonzero_columns))
         
         
-        # Remove data one and a half standard deviation below the non-zero mean
-        lower_cutoff = mean_of_nonzero_columns - 1.5* std_dev_of_nonzero_columns
+        # Remove data one standard deviation below the non-zero mean
+        lower_cutoff = mean_of_nonzero_columns - 1 * std_dev_of_nonzero_columns
+        lower_cutoff = mean_of_nonzero_columns
         print ("Lower cutoff = " + str(lower_cutoff))
         for i in range (0, len(sums_of_columns)):
             if (sums_of_columns[i] > lower_cutoff):
